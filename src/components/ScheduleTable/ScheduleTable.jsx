@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./ScheduleTable.css";
 import AdminControls from "./AdminControls/AdminControls";
 import ScheduleTableContent from "./ScheduleTableContent/ScheduleTableContent";
 import StudentScheduleTable from "./StudentScheduleTable/StudentScheduleTable";
@@ -17,6 +18,15 @@ function ScheduleTable({ grade, adminMode }) {
     }
   }, [grade, schedule]);
 
+  const dayOrder = [
+    "Ponedjeljak",
+    "Utorak",
+    "Srijeda",
+    "Četvrtak",
+    "Petak",
+    "Subota",
+  ];
+
   const toggleDaySelection = (weekIndex, clickedDay) => {
     const updatedWeeks = [...weeks];
     const selectedWeek = updatedWeeks[weekIndex];
@@ -28,6 +38,8 @@ function ScheduleTable({ grade, adminMode }) {
     } else {
       selectedWeek.days.push(clickedDay);
     }
+
+    selectedWeek.days.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
 
     setWeeks(updatedWeeks);
   };
@@ -109,8 +121,10 @@ function ScheduleTable({ grade, adminMode }) {
   const allUniqueDays = Array.from(new Set(weeks.flatMap((week) => week.days)));
 
   return (
-    <div>
-      <h2>{`${grade.toUpperCase()} Raspored`}</h2>
+    <div
+      className={`schedule-table-container razred-${grade.replace(".", "")}`}
+    >
+      <h2>{`Raspored vježbi ${grade}`}</h2>
       {adminMode ? (
         <div>
           <AdminControls

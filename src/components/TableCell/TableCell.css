@@ -1,0 +1,12 @@
+.select-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.subject-select,
+.group-select {
+  width: 80%;
+  justify-content: center;
+  margin-bottom: 5px;
+}

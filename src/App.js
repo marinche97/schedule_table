@@ -9,7 +9,7 @@ function App() {
   const handleGradeSelection = (grade) => setSelectedGrade(grade);
   return (
     <div className="App">
-      <h1>Raspored vježbi</h1>
+      <h1>Zdravstveno-laboratorijski tehničar</h1>
       <div>
         <button onClick={() => setAdminMode(!adminMode)}>
           {adminMode ? "Switch to Student Mode" : "Switch to Admin Mode"}

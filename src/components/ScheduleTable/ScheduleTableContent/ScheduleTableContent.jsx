@@ -46,7 +46,7 @@ const ScheduleTableContent = ({
                     adminMode={adminMode}
                     onChangeSubject={(subjectIndex, newSubject) =>
                       handleSubjectChange(
-                        weekIndex,
+                        weeks.length - 1 - weekIndex,
                         dayIndex,
                         subjectIndex,
                         newSubject
@@ -54,7 +54,7 @@ const ScheduleTableContent = ({
                     }
                     onChangeGroup={(groupIndex, newGroup) =>
                       handleGroupChange(
-                        weekIndex,
+                        weeks.length - 1 - weekIndex,
                         dayIndex,
                         groupIndex,
                         newGroup

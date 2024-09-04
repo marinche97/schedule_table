@@ -1,3 +1,5 @@
+import "./TableCell.css";
+
 function TableCell({
   subjects,
   groups,

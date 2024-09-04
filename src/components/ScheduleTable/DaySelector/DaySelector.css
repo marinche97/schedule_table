@@ -1,0 +1,12 @@
+.day-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.day-selector-div {
+  display: flex;
+  align-items: center;
+}
