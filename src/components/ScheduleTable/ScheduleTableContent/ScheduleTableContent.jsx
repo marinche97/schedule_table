@@ -11,7 +11,12 @@ const ScheduleTableContent = ({
   adminMode,
   handleSubjectChange,
   handleGroupChange,
+  lockedWeeks,
+  unlockWeek,
 }) => {
+  console.log("Weeks:", weeks);
+  console.log("All Unique Days:", allUniqueDays);
+
   return (
     <table className="schedule-table">
       <thead>
@@ -31,6 +36,7 @@ const ScheduleTableContent = ({
               <td>{`Tjedan ${week.week}`}</td>
               {allUniqueDays.map((day) => {
                 const dayIndex = week.days.indexOf(day);
+
                 return dayIndex !== -1 ? (
                   <TableCell
                     key={`${week.week}-${day}`}
@@ -43,7 +49,7 @@ const ScheduleTableContent = ({
                     selectedGroup={
                       schedule[grade]?.data[week.week]?.[dayIndex]?.groups || []
                     }
-                    adminMode={adminMode}
+                    adminMode={adminMode && !lockedWeeks.includes(weekIndex)}
                     onChangeSubject={(subjectIndex, newSubject) =>
                       handleSubjectChange(
                         weeks.length - 1 - weekIndex,
@@ -65,6 +71,11 @@ const ScheduleTableContent = ({
                   <td key={`${week.week}-${day}`} />
                 );
               })}
+              {adminMode && lockedWeeks.includes(weekIndex) && (
+                <td>
+                  <button onClick={() => unlockWeek(weekIndex)}>Uredi</button>
+                </td>
+              )}
             </tr>
           ))}
       </tbody>

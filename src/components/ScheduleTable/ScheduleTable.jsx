@@ -11,12 +11,8 @@ function ScheduleTable({ grade, adminMode }) {
     "2.c": { weeks: [], data: {} },
     "3.c": { weeks: [], data: {} },
   });
-
-  useEffect(() => {
-    if (grade) {
-      setWeeks(schedule[grade]?.weeks || []);
-    }
-  }, [grade, schedule]);
+  const [lockedWeeks, setLockedWeeks] = useState([]);
+  const [addingWeek, setAddingWeek] = useState(false);
 
   const dayOrder = [
     "Ponedjeljak",
@@ -26,6 +22,42 @@ function ScheduleTable({ grade, adminMode }) {
     "Petak",
     "Subota",
   ];
+
+  const getAllUniqueDays = () => {
+    const uniqueDays = Array.from(new Set(weeks.flatMap((week) => week.days)));
+    return uniqueDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+  };
+
+  const allUniqueDays = getAllUniqueDays(); // Define it once here
+
+  useEffect(() => {
+    if (grade) {
+      setWeeks(schedule[grade]?.weeks || []);
+    }
+  }, [grade, schedule]);
+
+  useEffect(() => {
+    // Log current weeks' days whenever weeks state changes
+    console.log("Current weeks state:", weeks);
+  }, [weeks]);
+
+  useEffect(() => {
+    setLockedWeeks((prevLockedWeeks) =>
+      prevLockedWeeks.filter((index) => index < weeks.length - 1)
+    );
+  }, [weeks]);
+
+  const saveSchedule = () => {
+    setLockedWeeks(weeks.map((_, index) => index));
+    setAddingWeek(false);
+    console.log("saving schedule:", schedule);
+  };
+
+  const unlockWeek = (weekIndex) => {
+    setLockedWeeks((prevLockedWeeks) =>
+      prevLockedWeeks.filter((index) => index !== weekIndex)
+    );
+  };
 
   const toggleDaySelection = (weekIndex, clickedDay) => {
     const updatedWeeks = [...weeks];
@@ -37,9 +69,10 @@ function ScheduleTable({ grade, adminMode }) {
       );
     } else {
       selectedWeek.days.push(clickedDay);
+      selectedWeek.days.sort(
+        (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
+      );
     }
-
-    selectedWeek.days.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
 
     setWeeks(updatedWeeks);
   };
@@ -48,39 +81,32 @@ function ScheduleTable({ grade, adminMode }) {
     const updatedSchedule = { ...schedule };
     const currentGradeSchedule = updatedSchedule[grade];
 
-    const newWeek = { week: currentGradeSchedule.weeks.length + 1, days: [] };
-    const newWeekData = newWeek.days.map(() => ({
-      subjects: Array(3).fill(""),
-      groups: Array(3).fill(""),
-    }));
+    const newWeekNumber = currentGradeSchedule.weeks.length + 1;
+    const newWeek = { week: newWeekNumber, days: [] };
+
+    dayOrder.forEach((day) => {
+      if (allUniqueDays.includes(day)) {
+        newWeek.days.push(day);
+      }
+    });
+
+    newWeek.days = newWeek.days.sort(
+      (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
+    );
 
     currentGradeSchedule.weeks.push(newWeek);
-    currentGradeSchedule.data[newWeek.week] = newWeekData;
+    currentGradeSchedule.data[newWeekNumber] = [];
 
     setWeeks(currentGradeSchedule.weeks);
     setSchedule(updatedSchedule);
-  };
 
-  const saveSchedule = () => {
-    console.log("saving schedule:", schedule);
-  };
+    const lockedWeeks = currentGradeSchedule.weeks
+      .filter((week) => week.week !== newWeekNumber)
+      .map((week) => week.week);
 
-  const ensureDataStructure = (gradeSchedule, weekIndex, dayIndex) => {
-    // Koristimo weekIndex direktno za pristup
-    const week = gradeSchedule.weeks[weekIndex]; // Dohvaćamo tjedan s pomoću indeksa
+    setLockedWeeks(lockedWeeks);
 
-    // Ako podaci za određeni tjedan ne postoje, inicijaliziraj ih kao prazan objekt
-    if (!gradeSchedule.data[week.week]) {
-      gradeSchedule.data[week.week] = {};
-    }
-
-    // Ako podaci za određeni dan u tjednu ne postoje, inicijaliziraj ih s praznim predloškom
-    if (!gradeSchedule.data[week.week][dayIndex]) {
-      gradeSchedule.data[week.week][dayIndex] = {
-        subjects: Array(3).fill(""), // Prazni niz predmeta
-        groups: Array(3).fill(""), // Prazni niz grupa
-      };
-    }
+    setAddingWeek(false);
   };
 
   const handleSubjectChange = (
@@ -92,33 +118,49 @@ function ScheduleTable({ grade, adminMode }) {
     const updatedSchedule = { ...schedule };
     const currentGradeSchedule = updatedSchedule[grade];
 
-    // Provjeravamo i inicijaliziramo potrebne strukture podataka za tjedan i dan
-    ensureDataStructure(currentGradeSchedule, weekIndex, dayIndex);
+    if (
+      !currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
+        dayIndex
+      ]
+    ) {
+      currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
+        dayIndex
+      ] = {
+        subjects: Array(3).fill(""),
+        groups: Array(3).fill(""),
+      };
+    }
 
-    // Ažuriramo predmet
     currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
       dayIndex
     ].subjects[subjectIndex] = newSubject;
 
-    setSchedule(updatedSchedule); // Postavljamo ažurirani raspored
+    setSchedule(updatedSchedule);
   };
 
   const handleGroupChange = (weekIndex, dayIndex, groupIndex, newGroup) => {
     const updatedSchedule = { ...schedule };
     const currentGradeSchedule = updatedSchedule[grade];
 
-    // Provjeravamo i inicijaliziramo potrebne strukture podataka za tjedan i dan
-    ensureDataStructure(currentGradeSchedule, weekIndex, dayIndex);
+    if (
+      !currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
+        dayIndex
+      ]
+    ) {
+      currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
+        dayIndex
+      ] = {
+        subjects: Array(3).fill(""),
+        groups: Array(3).fill(""),
+      };
+    }
 
-    // Ažuriramo grupu
     currentGradeSchedule.data[currentGradeSchedule.weeks[weekIndex].week][
       dayIndex
     ].groups[groupIndex] = newGroup;
 
-    setSchedule(updatedSchedule); // Postavljamo ažurirani raspored
+    setSchedule(updatedSchedule);
   };
-
-  const allUniqueDays = Array.from(new Set(weeks.flatMap((week) => week.days)));
 
   return (
     <div
@@ -132,6 +174,7 @@ function ScheduleTable({ grade, adminMode }) {
             toggleDaySelection={toggleDaySelection}
             addWeek={addWeek}
             saveSchedule={saveSchedule}
+            addingWeek={addingWeek}
           />
           <ScheduleTableContent
             weeks={weeks}
@@ -141,6 +184,9 @@ function ScheduleTable({ grade, adminMode }) {
             adminMode={adminMode}
             handleSubjectChange={handleSubjectChange}
             handleGroupChange={handleGroupChange}
+            lockedWeeks={lockedWeeks}
+            unlockWeek={unlockWeek}
+            dayOrder={dayOrder}
           />
         </div>
       ) : (
