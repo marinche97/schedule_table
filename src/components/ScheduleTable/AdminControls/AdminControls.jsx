@@ -15,17 +15,22 @@ const AdminControls = ({
   toggleDaySelection,
   addWeek,
   saveSchedule,
+  editingWeekIndex,
 }) => {
   return (
     <div>
       {weeks.map((week, index) => (
         <div key={week.week}>
-          <h3>{`Tjedan ${week.week}`}</h3>
-          <DaySelector
-            selectedDays={week.days}
-            allDaysOfWeek={allDaysOfWeek}
-            onDayToggle={(day) => toggleDaySelection(index, day)}
-          />
+          {editingWeekIndex === index && (
+            <>
+              <h3>{`Tjedan ${week.week}`}</h3>
+              <DaySelector
+                selectedDays={week.days}
+                allDaysOfWeek={allDaysOfWeek}
+                onDayToggle={(day) => toggleDaySelection(index, day)}
+              />
+            </>
+          )}
         </div>
       ))}
       <button onClick={addWeek}>Dodaj tjedan</button>

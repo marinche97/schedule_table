@@ -13,10 +13,8 @@ const ScheduleTableContent = ({
   handleGroupChange,
   lockedWeeks,
   unlockWeek,
+  editingWeekIndex,
 }) => {
-  console.log("Weeks:", weeks);
-  console.log("All Unique Days:", allUniqueDays);
-
   return (
     <table className="schedule-table">
       <thead>

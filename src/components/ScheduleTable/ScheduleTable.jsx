@@ -12,7 +12,7 @@ function ScheduleTable({ grade, adminMode }) {
     "3.c": { weeks: [], data: {} },
   });
   const [lockedWeeks, setLockedWeeks] = useState([]);
-  const [addingWeek, setAddingWeek] = useState(false);
+  const [editingWeekIndex, setEditingWeekIndex] = useState(null);
 
   const dayOrder = [
     "Ponedjeljak",
@@ -37,11 +37,6 @@ function ScheduleTable({ grade, adminMode }) {
   }, [grade, schedule]);
 
   useEffect(() => {
-    // Log current weeks' days whenever weeks state changes
-    console.log("Current weeks state:", weeks);
-  }, [weeks]);
-
-  useEffect(() => {
     setLockedWeeks((prevLockedWeeks) =>
       prevLockedWeeks.filter((index) => index < weeks.length - 1)
     );
@@ -49,14 +44,14 @@ function ScheduleTable({ grade, adminMode }) {
 
   const saveSchedule = () => {
     setLockedWeeks(weeks.map((_, index) => index));
-    setAddingWeek(false);
-    console.log("saving schedule:", schedule);
+    setEditingWeekIndex(null);
   };
 
   const unlockWeek = (weekIndex) => {
     setLockedWeeks((prevLockedWeeks) =>
       prevLockedWeeks.filter((index) => index !== weekIndex)
     );
+    setEditingWeekIndex(weekIndex);
   };
 
   const toggleDaySelection = (weekIndex, clickedDay) => {
@@ -105,8 +100,7 @@ function ScheduleTable({ grade, adminMode }) {
       .map((week) => week.week);
 
     setLockedWeeks(lockedWeeks);
-
-    setAddingWeek(false);
+    setEditingWeekIndex(currentGradeSchedule.weeks.length - 1);
   };
 
   const handleSubjectChange = (
@@ -174,7 +168,7 @@ function ScheduleTable({ grade, adminMode }) {
             toggleDaySelection={toggleDaySelection}
             addWeek={addWeek}
             saveSchedule={saveSchedule}
-            addingWeek={addingWeek}
+            editingWeekIndex={editingWeekIndex}
           />
           <ScheduleTableContent
             weeks={weeks}
@@ -187,6 +181,7 @@ function ScheduleTable({ grade, adminMode }) {
             lockedWeeks={lockedWeeks}
             unlockWeek={unlockWeek}
             dayOrder={dayOrder}
+            editingWeekIndex={editingWeekIndex}
           />
         </div>
       ) : (
