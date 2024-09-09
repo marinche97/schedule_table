@@ -1,5 +1,6 @@
 import React from "react";
 import DaySelector from "../DaySelector/DaySelector";
+import "./AdminControls.css";
 
 const allDaysOfWeek = [
   "Ponedjeljak",

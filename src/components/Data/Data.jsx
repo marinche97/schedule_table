@@ -8,7 +8,7 @@ export const subjectClasses = {
   "3.c": [
     "Medicinska biokemija",
     "Laboratorijska hematologija",
-    "Imunohematologija i transfuziologija",
+    "Mikrobiologija i parazitologija",
     "Instrumentalne metode",
   ],
 };

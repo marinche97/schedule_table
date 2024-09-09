@@ -5,8 +5,11 @@
 
 .schedule-table th,
 .schedule-table td {
-  border: 1px solid #ddd;
+  border: 1px solid hsl(274, 88%, 50%);
   padding: 10px;
+  font-family: "Montserrat", Arial;
+  font-weight: 700;
+  font-size: 1em;
 }
 
 .schedule-table th {

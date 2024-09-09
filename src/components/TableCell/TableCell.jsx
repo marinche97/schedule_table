@@ -44,8 +44,8 @@ function TableCell({
             </>
           ) : (
             <>
-              <span>{selectedSubject[idx] || "Nema predmeta"}</span>
-              <span>{selectedGroup[idx] || "Nema grupe"}</span>
+              <span>{selectedSubject[idx] || ""}</span>
+              <span>{selectedGroup[idx] || ""}</span>
             </>
           )}
         </span>
