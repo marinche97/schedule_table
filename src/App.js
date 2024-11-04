@@ -1,20 +1,52 @@
 import { useState } from "react";
 import "./App.css";
 import ScheduleTable from "./components/ScheduleTable/ScheduleTable";
+import AdminLogin from "./components/ScheduleTable/AdminLogin/AdminLogin";
 
 function App() {
   const [selectedGrade, setSelectedGrade] = useState("");
-  const [adminMode, setAdminMode] = useState(true);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  const adminCredentials = {
+    username: "admin",
+    password: "admin",
+  };
+
+  const handleAdminLogin = (username, password) => {
+    if (
+      username === adminCredentials.username &&
+      password === adminCredentials.password
+    ) {
+      setIsAdminMode(true);
+      setShowLogin(false);
+    } else {
+      alert("Neispravno korisničko ime ili lozinka");
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminMode(false);
+  };
 
   const handleGradeSelection = (grade) => setSelectedGrade(grade);
+
   return (
     <div className="App">
       <h1>Zdravstveno-laboratorijski tehničar</h1>
       <div>
-        <button onClick={() => setAdminMode(!adminMode)}>
-          {adminMode ? "Switch to Student Mode" : "Switch to Admin Mode"}
-        </button>
+        {!isAdminMode ? (
+          <button type="button" onClick={() => setShowLogin(true)}>
+            Admin login
+          </button>
+        ) : (
+          <button type="button" onClick={handleAdminLogout}>
+            Logout
+          </button>
+        )}
       </div>
+      {showLogin && !isAdminMode && <AdminLogin onLogin={handleAdminLogin} />}
+
       <button onClick={() => handleGradeSelection("1.c")} type="button">
         1.c razred
       </button>
@@ -25,7 +57,7 @@ function App() {
         3.c razred
       </button>
       {selectedGrade && (
-        <ScheduleTable grade={selectedGrade} adminMode={adminMode} />
+        <ScheduleTable grade={selectedGrade} isAdminMode={isAdminMode} />
       )}
     </div>
   );

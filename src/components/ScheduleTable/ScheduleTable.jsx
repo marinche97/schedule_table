@@ -4,7 +4,7 @@ import AdminControls from "./AdminControls/AdminControls";
 import ScheduleTableContent from "./ScheduleTableContent/ScheduleTableContent";
 import StudentScheduleTable from "./StudentScheduleTable/StudentScheduleTable";
 
-function ScheduleTable({ grade, adminMode }) {
+function ScheduleTable({ grade, isAdminMode }) {
   const [weeks, setWeeks] = useState([]);
   const [schedule, setSchedule] = useState({
     "1.c": { weeks: [], data: {} },
@@ -28,7 +28,7 @@ function ScheduleTable({ grade, adminMode }) {
     return uniqueDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
   };
 
-  const allUniqueDays = getAllUniqueDays(); // Define it once here
+  const allUniqueDays = getAllUniqueDays();
 
   useEffect(() => {
     if (grade) {
@@ -161,7 +161,8 @@ function ScheduleTable({ grade, adminMode }) {
       className={`schedule-table-container razred-${grade.replace(".", "")}`}
     >
       <h2>{`Raspored vježbi ${grade}`}</h2>
-      {adminMode ? (
+
+      {isAdminMode ? (
         <div>
           <AdminControls
             weeks={weeks}
@@ -175,7 +176,7 @@ function ScheduleTable({ grade, adminMode }) {
             allUniqueDays={allUniqueDays}
             schedule={schedule}
             grade={grade}
-            adminMode={adminMode}
+            adminMode={isAdminMode}
             handleSubjectChange={handleSubjectChange}
             handleGroupChange={handleGroupChange}
             lockedWeeks={lockedWeeks}
