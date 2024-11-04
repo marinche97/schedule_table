@@ -5,12 +5,22 @@ import ScheduleTableContent from "./ScheduleTableContent/ScheduleTableContent";
 import StudentScheduleTable from "./StudentScheduleTable/StudentScheduleTable";
 
 function ScheduleTable({ grade, isAdminMode }) {
-  const [weeks, setWeeks] = useState([]);
-  const [schedule, setSchedule] = useState({
-    "1.c": { weeks: [], data: {} },
-    "2.c": { weeks: [], data: {} },
-    "3.c": { weeks: [], data: {} },
+  const [weeks, setWeeks] = useState(() => {
+    const savedWeeks = localStorage.getItem("weeks");
+    return savedWeeks ? JSON.parse(savedWeeks) : [];
   });
+
+  const [schedule, setSchedule] = useState(() => {
+    const savedSchedule = localStorage.getItem("schedule");
+    return savedSchedule
+      ? JSON.parse(savedSchedule)
+      : {
+          "1.c": { weeks: [], data: {} },
+          "2.c": { weeks: [], data: {} },
+          "3.c": { weeks: [], data: {} },
+        };
+  });
+
   const [lockedWeeks, setLockedWeeks] = useState([]);
   const [editingWeekIndex, setEditingWeekIndex] = useState(null);
 
@@ -41,6 +51,14 @@ function ScheduleTable({ grade, isAdminMode }) {
       prevLockedWeeks.filter((index) => index < weeks.length - 1)
     );
   }, [weeks]);
+
+  useEffect(() => {
+    localStorage.setItem("weeks", JSON.stringify(weeks));
+  }, [weeks]);
+
+  useEffect(() => {
+    localStorage.setItem("schedule", JSON.stringify(schedule));
+  }, [schedule]);
 
   const saveSchedule = () => {
     setLockedWeeks(weeks.map((_, index) => index));
