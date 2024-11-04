@@ -121,6 +121,23 @@ function ScheduleTable({ grade, isAdminMode }) {
     setEditingWeekIndex(currentGradeSchedule.weeks.length - 1);
   };
 
+  const deleteWeek = (weekIndex) => {
+    const updatedWeeks = weeks.filter((_, index) => index !== weekIndex);
+    const updatedSchedule = { ...schedule };
+    const currentGradeSchedule = updatedSchedule[grade];
+
+    const weekNumber = weeks[weekIndex].week;
+    currentGradeSchedule.weeks = updatedWeeks;
+    delete currentGradeSchedule.data[weekNumber];
+
+    setWeeks(updatedWeeks);
+    setSchedule(updatedSchedule);
+
+    setLockedWeeks((prevLockedWeeks) =>
+      prevLockedWeeks.filter((index) => index !== weekIndex)
+    );
+  };
+
   const handleSubjectChange = (
     weekIndex,
     dayIndex,
@@ -201,6 +218,7 @@ function ScheduleTable({ grade, isAdminMode }) {
             unlockWeek={unlockWeek}
             dayOrder={dayOrder}
             editingWeekIndex={editingWeekIndex}
+            deleteWeek={deleteWeek}
           />
         </div>
       ) : (

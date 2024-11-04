@@ -14,6 +14,7 @@ const ScheduleTableContent = ({
   lockedWeeks,
   unlockWeek,
   editingWeekIndex,
+  deleteWeek,
 }) => {
   return (
     <table className="schedule-table">
@@ -72,6 +73,11 @@ const ScheduleTableContent = ({
               {adminMode && lockedWeeks.includes(weekIndex) && (
                 <td>
                   <button onClick={() => unlockWeek(weekIndex)}>Uredi</button>
+                  <button
+                    onClick={() => deleteWeek(weeks.length - 1 - weekIndex)}
+                  >
+                    Obriši
+                  </button>
                 </td>
               )}
             </tr>
