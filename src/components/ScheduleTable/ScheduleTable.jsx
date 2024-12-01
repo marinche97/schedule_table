@@ -47,6 +47,23 @@ function ScheduleTable({ grade, isAdminMode }) {
       const scheduleRef = ref(db, `schedule`);
       onValue(scheduleRef, (snapshot) => {
         const fetchedSchedule = snapshot.val();
+
+        for (const savedGrade in fetchedSchedule) {
+          const savedScheduleForGrade = fetchedSchedule[savedGrade];
+          const savedWeeks = savedScheduleForGrade.weeks;
+          const savedData = savedScheduleForGrade.data;
+
+          for (const savedWeek of savedWeeks) {
+            if (!savedWeek.days) {
+              savedWeek.days = [];
+            }
+
+            if (!savedData[savedWeek.week]) {
+              savedData[savedWeek.week] = [];
+            }
+          }
+        }
+
         if (fetchedSchedule) {
           setSchedule(fetchedSchedule);
           setWeeks(fetchedSchedule[grade]?.weeks || []);
@@ -67,6 +84,7 @@ function ScheduleTable({ grade, isAdminMode }) {
 
     const scheduleRef = ref(db, `schedule`);
     try {
+      console.log(JSON.parse(JSON.stringify(schedule)));
       await set(scheduleRef, schedule);
       console.log("Schedule saved successfully.");
     } catch (error) {
