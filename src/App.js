@@ -47,13 +47,13 @@ function App() {
       </div>
       {showLogin && !isAdminMode && <AdminLogin onLogin={handleAdminLogin} />}
 
-      <button onClick={() => handleGradeSelection("1.c")} type="button">
+      <button onClick={() => handleGradeSelection("1c")} type="button">
         1.c razred
       </button>
-      <button onClick={() => handleGradeSelection("2.c")} type="button">
+      <button onClick={() => handleGradeSelection("2c")} type="button">
         2.c razred
       </button>
-      <button onClick={() => handleGradeSelection("3.c")} type="button">
+      <button onClick={() => handleGradeSelection("3c")} type="button">
         3.c razred
       </button>
       {selectedGrade && (

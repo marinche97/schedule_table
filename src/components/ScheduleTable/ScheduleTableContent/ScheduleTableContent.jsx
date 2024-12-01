@@ -35,7 +35,6 @@ const ScheduleTableContent = ({
               <td>{`Tjedan ${week.week}`}</td>
               {allUniqueDays.map((day) => {
                 const dayIndex = week.days.indexOf(day);
-
                 return dayIndex !== -1 ? (
                   <TableCell
                     key={`${week.week}-${day}`}

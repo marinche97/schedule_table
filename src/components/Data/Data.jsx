@@ -1,11 +1,11 @@
 export const subjectClasses = {
-  "1.c": [
+  "1c": [
     "Osnovne zdravstvene struke",
     "Uvod u laboratorijski rad",
     "Analitička kemija",
   ],
-  "2.c": ["Analitička kemija"],
-  "3.c": [
+  "2c": ["Analitička kemija"],
+  "3c": [
     "Medicinska biokemija",
     "Laboratorijska hematologija",
     "Mikrobiologija i parazitologija",

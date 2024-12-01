@@ -1,26 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./ScheduleTable.css";
+import { ref, onValue, set, remove, db } from "../../firebase";
 import AdminControls from "./AdminControls/AdminControls";
 import ScheduleTableContent from "./ScheduleTableContent/ScheduleTableContent";
 import StudentScheduleTable from "./StudentScheduleTable/StudentScheduleTable";
 
 function ScheduleTable({ grade, isAdminMode }) {
-  const [weeks, setWeeks] = useState(() => {
-    const savedWeeks = localStorage.getItem("weeks");
-    return savedWeeks ? JSON.parse(savedWeeks) : [];
+  const [weeks, setWeeks] = useState([]);
+  const [schedule, setSchedule] = useState({
+    "1c": { weeks: [], data: {} },
+    "2c": { weeks: [], data: {} },
+    "3c": { weeks: [], data: {} },
   });
-
-  const [schedule, setSchedule] = useState(() => {
-    const savedSchedule = localStorage.getItem("schedule");
-    return savedSchedule
-      ? JSON.parse(savedSchedule)
-      : {
-          "1.c": { weeks: [], data: {} },
-          "2.c": { weeks: [], data: {} },
-          "3.c": { weeks: [], data: {} },
-        };
-  });
-
   const [lockedWeeks, setLockedWeeks] = useState([]);
   const [editingWeekIndex, setEditingWeekIndex] = useState(null);
 
@@ -34,17 +25,35 @@ function ScheduleTable({ grade, isAdminMode }) {
   ];
 
   const getAllUniqueDays = () => {
-    const uniqueDays = Array.from(new Set(weeks.flatMap((week) => week.days)));
-    return uniqueDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+    // Flatten the `weeks` array and default `days` to an empty array if missing, ensuring valid values
+    const uniqueDays = Array.from(
+      new Set(weeks.flatMap((week) => week?.days || []))
+    );
+
+    // Filter to only include valid days and sort according to `dayOrder`
+    return uniqueDays
+      .filter((day) => dayOrder.includes(day))
+      .sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
   };
 
-  const allUniqueDays = getAllUniqueDays();
+  const [allUniqueDays, setAllUniqueDays] = useState([]);
+
+  useEffect(() => {
+    setAllUniqueDays(getAllUniqueDays());
+  }, [weeks]);
 
   useEffect(() => {
     if (grade) {
-      setWeeks(schedule[grade]?.weeks || []);
+      const scheduleRef = ref(db, `schedule`);
+      onValue(scheduleRef, (snapshot) => {
+        const fetchedSchedule = snapshot.val();
+        if (fetchedSchedule) {
+          setSchedule(fetchedSchedule);
+          setWeeks(fetchedSchedule[grade]?.weeks || []);
+        }
+      });
     }
-  }, [grade, schedule]);
+  }, [grade]);
 
   useEffect(() => {
     setLockedWeeks((prevLockedWeeks) =>
@@ -52,17 +61,17 @@ function ScheduleTable({ grade, isAdminMode }) {
     );
   }, [weeks]);
 
-  useEffect(() => {
-    localStorage.setItem("weeks", JSON.stringify(weeks));
-  }, [weeks]);
-
-  useEffect(() => {
-    localStorage.setItem("schedule", JSON.stringify(schedule));
-  }, [schedule]);
-
-  const saveSchedule = () => {
+  const saveSchedule = async () => {
     setLockedWeeks(weeks.map((_, index) => index));
     setEditingWeekIndex(null);
+
+    const scheduleRef = ref(db, `schedule`);
+    try {
+      await set(scheduleRef, schedule);
+      console.log("Schedule saved successfully.");
+    } catch (error) {
+      console.error("Error saving schedule", error);
+    }
   };
 
   const unlockWeek = (weekIndex) => {
@@ -90,8 +99,13 @@ function ScheduleTable({ grade, isAdminMode }) {
     setWeeks(updatedWeeks);
   };
 
-  const addWeek = () => {
+  const addWeek = async () => {
     const updatedSchedule = { ...schedule };
+
+    if (!updatedSchedule[grade]) {
+      updatedSchedule[grade] = { weeks: [], data: {} };
+    }
+
     const currentGradeSchedule = updatedSchedule[grade];
 
     const newWeekNumber = currentGradeSchedule.weeks.length + 1;
@@ -108,30 +122,55 @@ function ScheduleTable({ grade, isAdminMode }) {
     );
 
     currentGradeSchedule.weeks.push(newWeek);
+
+    if (!currentGradeSchedule.data) {
+      currentGradeSchedule.data = {};
+    }
+
     currentGradeSchedule.data[newWeekNumber] = [];
 
-    setWeeks(currentGradeSchedule.weeks);
-    setSchedule(updatedSchedule);
+    try {
+      const scheduleRef = ref(db, `schedule`);
+      await set(scheduleRef, updatedSchedule);
+      setWeeks(currentGradeSchedule.weeks);
+      setSchedule(updatedSchedule);
 
-    const lockedWeeks = currentGradeSchedule.weeks
-      .filter((week) => week.week !== newWeekNumber)
-      .map((week) => week.week);
+      const lockedWeeks = currentGradeSchedule.weeks
+        .filter((week) => week.week !== newWeekNumber)
+        .map((week) => week.week);
 
-    setLockedWeeks(lockedWeeks);
-    setEditingWeekIndex(currentGradeSchedule.weeks.length - 1);
+      setLockedWeeks(lockedWeeks);
+      setEditingWeekIndex(currentGradeSchedule.weeks.length - 1);
+    } catch (error) {
+      console.error("Error saving new week to Firebase:", error);
+    }
   };
 
-  const deleteWeek = (weekIndex) => {
+  const deleteWeek = async (weekIndex) => {
     const updatedWeeks = weeks.filter((_, index) => index !== weekIndex);
     const updatedSchedule = { ...schedule };
-    const currentGradeSchedule = updatedSchedule[grade];
 
+    const currentGradeSchedule = updatedSchedule[grade] || {
+      weeks: [],
+      data: {},
+    };
     const weekNumber = weeks[weekIndex].week;
+
     currentGradeSchedule.weeks = updatedWeeks;
     delete currentGradeSchedule.data[weekNumber];
 
     setWeeks(updatedWeeks);
     setSchedule(updatedSchedule);
+
+    try {
+      const weekRef = ref(db, `schedules/${grade}/data/${weekNumber}`);
+      await remove(weekRef);
+      const scheduleRef = ref(db, `schedules/${grade}`);
+      await set(scheduleRef, updatedSchedule);
+      console.log("Week deleted successfully from Firebase.");
+    } catch (error) {
+      console.error("Error deleting week from Firebase:", error);
+    }
 
     setLockedWeeks((prevLockedWeeks) =>
       prevLockedWeeks.filter((index) => index !== weekIndex)
@@ -192,11 +231,8 @@ function ScheduleTable({ grade, isAdminMode }) {
   };
 
   return (
-    <div
-      className={`schedule-table-container razred-${grade.replace(".", "")}`}
-    >
+    <div className={`schedule-table-container razred-${grade}`}>
       <h2>{`Raspored vježbi ${grade}`}</h2>
-
       {isAdminMode ? (
         <div>
           <AdminControls
@@ -207,8 +243,8 @@ function ScheduleTable({ grade, isAdminMode }) {
             editingWeekIndex={editingWeekIndex}
           />
           <ScheduleTableContent
-            weeks={weeks}
-            allUniqueDays={allUniqueDays}
+            weeks={weeks || []}
+            allUniqueDays={allUniqueDays || []}
             schedule={schedule}
             grade={grade}
             adminMode={isAdminMode}
@@ -218,7 +254,6 @@ function ScheduleTable({ grade, isAdminMode }) {
             unlockWeek={unlockWeek}
             dayOrder={dayOrder}
             editingWeekIndex={editingWeekIndex}
-            deleteWeek={deleteWeek}
           />
         </div>
       ) : (
