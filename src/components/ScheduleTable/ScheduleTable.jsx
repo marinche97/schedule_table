@@ -46,6 +46,7 @@ function ScheduleTable({ grade, isAdminMode }) {
     if (grade) {
       const scheduleRef = ref(db, `schedule`);
       onValue(scheduleRef, (snapshot) => {
+        debugger;
         const fetchedSchedule = snapshot.val();
 
         for (const savedGrade in fetchedSchedule) {
