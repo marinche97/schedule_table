@@ -253,7 +253,7 @@ function ScheduleTable({ grade, isAdminMode }) {
 
   return (
     <div className={`schedule-table-container razred-${grade}`}>
-      <h2>{`Raspored vježbi ${grade}`}</h2>
+      <h2>{`Raspored vježbi test ${grade}`}</h2>
       {isAdminMode ? (
         <div>
           <AdminControls
