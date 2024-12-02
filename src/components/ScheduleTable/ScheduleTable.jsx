@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./ScheduleTable.css";
 import { ref, onValue, set, remove, db } from "../../firebase";
 import AdminControls from "./AdminControls/AdminControls";
 import ScheduleTableContent from "./ScheduleTableContent/ScheduleTableContent";
 import StudentScheduleTable from "./StudentScheduleTable/StudentScheduleTable";
+
+const dayOrder = [
+  "Ponedjeljak",
+  "Utorak",
+  "Srijeda",
+  "Četvrtak",
+  "Petak",
+  "Subota",
+];
 
 function ScheduleTable({ grade, isAdminMode }) {
   const [weeks, setWeeks] = useState([]);
@@ -15,16 +24,7 @@ function ScheduleTable({ grade, isAdminMode }) {
   const [lockedWeeks, setLockedWeeks] = useState([]);
   const [editingWeekIndex, setEditingWeekIndex] = useState(null);
 
-  const dayOrder = [
-    "Ponedjeljak",
-    "Utorak",
-    "Srijeda",
-    "Četvrtak",
-    "Petak",
-    "Subota",
-  ];
-
-  const getAllUniqueDays = () => {
+  const getAllUniqueDays = useCallback(() => {
     // Flatten the `weeks` array and default `days` to an empty array if missing, ensuring valid values
     const uniqueDays = Array.from(
       new Set(weeks.flatMap((week) => week?.days || []))
@@ -34,13 +34,13 @@ function ScheduleTable({ grade, isAdminMode }) {
     return uniqueDays
       .filter((day) => dayOrder.includes(day))
       .sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
-  };
+  }, [weeks]);
 
   const [allUniqueDays, setAllUniqueDays] = useState([]);
 
   useEffect(() => {
     setAllUniqueDays(getAllUniqueDays());
-  }, [setAllUniqueDays, weeks]);
+  }, [setAllUniqueDays, getAllUniqueDays]);
 
   useEffect(() => {
     if (grade) {
