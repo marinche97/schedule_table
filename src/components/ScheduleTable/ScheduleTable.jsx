@@ -46,7 +46,6 @@ function ScheduleTable({ grade, isAdminMode }) {
     if (grade) {
       const scheduleRef = ref(db, `schedule`);
       onValue(scheduleRef, (snapshot) => {
-        debugger;
         const fetchedSchedule = snapshot.val();
 
         for (const savedGrade in fetchedSchedule) {
@@ -64,8 +63,6 @@ function ScheduleTable({ grade, isAdminMode }) {
             }
           }
         }
-
-        console.log(fetchedSchedule);
 
         if (fetchedSchedule) {
           setSchedule(fetchedSchedule);
@@ -87,7 +84,6 @@ function ScheduleTable({ grade, isAdminMode }) {
 
     const scheduleRef = ref(db, `schedule`);
     try {
-      console.log(JSON.parse(JSON.stringify(schedule)));
       await set(scheduleRef, schedule);
       console.log("Schedule saved successfully.");
     } catch (error) {
