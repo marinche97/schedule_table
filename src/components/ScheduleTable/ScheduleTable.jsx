@@ -64,6 +64,8 @@ function ScheduleTable({ grade, isAdminMode }) {
           }
         }
 
+        console.log(fetchedSchedule);
+
         if (fetchedSchedule) {
           setSchedule(fetchedSchedule);
           setWeeks(fetchedSchedule[grade]?.weeks || []);
