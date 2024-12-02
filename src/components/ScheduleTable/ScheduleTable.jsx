@@ -40,7 +40,7 @@ function ScheduleTable({ grade, isAdminMode }) {
 
   useEffect(() => {
     setAllUniqueDays(getAllUniqueDays());
-  }, [weeks]);
+  }, [setAllUniqueDays, weeks]);
 
   useEffect(() => {
     if (grade) {
@@ -197,6 +197,8 @@ function ScheduleTable({ grade, isAdminMode }) {
       prevLockedWeeks.filter((index) => index !== weekIndex)
     );
   };
+
+  console.log(deleteWeek);
 
   const handleSubjectChange = (
     weekIndex,
